@@ -1,0 +1,20 @@
+[project]
+authors = ["Tristan Manchester <tristan.manchester@diamond.ac.uk>"]
+channels = ["conda-forge"]
+name = "tomometal"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+description = "GPU-accelerated tomographic reconstruction using PyTorch MPS for Apple Silicon"
+
+[tasks]
+test = { cmd = "python tests/test_synthetic.py", env = { PYTHONPATH = "." } }
+
+[dependencies]
+numpy = ">=2.2.3,<3"
+tifffile = ">=2025.2.18,<2026"
+pillow = ">=11.1.0,<12"
+scipy = ">=1.15.2,<2"
+matplotlib = ">=3.10.0,<4"
+
+[pypi-dependencies]
+torch = "*"
