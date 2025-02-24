@@ -1,6 +1,6 @@
 # TomoMetal
 
-TomoMetal is a high-performance tomographic reconstruction library that leverages Apple's Metal Performance Shaders (MPS) through PyTorch. Built specifically for Apple Silicon, it provides GPU-accelerated Filtered Back Projection (FBP) with performance comparable to established toolboxes like ASTRA or TIGRE, while being optimized for modern Mac systems.
+TomoMetal is a high-performance tomographic reconstruction library that leverages Apple's Metal Performance Shaders (MPS) through PyTorch.
 
 ![Example Reconstruction](docs/images/example_reconstruction.png)
 *Left: Original Shepp-Logan phantom. Middle: Sinogram of 180 projections. Right: GPU-accelerated reconstruction.*
@@ -15,10 +15,9 @@ TomoMetal is a high-performance tomographic reconstruction library that leverage
 
 ## Requirements
 
-- macOS with Apple Silicon (M1/M2/M3) processor
+- macOS with Apple Silicon processor
 - Python 3.8+
 - PyTorch 2.1.0+ (with MPS backend)
-- Other dependencies listed in requirements.txt
 
 ## Installation
 
@@ -68,15 +67,6 @@ The reconstruction pipeline consists of three main steps:
 3. **Backprojection**: GPU-accelerated backprojection using PyTorch's grid_sample
 
 All operations are performed on the GPU using PyTorch's MPS backend, providing significant speedup compared to CPU implementations.
-
-## Performance
-
-The implementation leverages PyTorch's MPS backend to utilize Apple's Metal framework for GPU acceleration. Key performance optimizations include:
-
-- Batch processing of projections
-- Efficient memory management
-- Vectorized operations
-- Hardware-accelerated interpolation
 
 ## License
 
