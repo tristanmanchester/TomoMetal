@@ -2,16 +2,24 @@
 
 TomoMetal is a high-performance tomographic reconstruction library that leverages Apple's Metal Performance Shaders (MPS) through PyTorch.
 
-![Example Reconstruction](docs/images/example_reconstruction.png)
-*Left: Original Shepp-Logan phantom. Middle: Sinogram of 180 projections. Right: GPU-accelerated reconstruction.*
-
 ## Features
 
 - Fast GPU-accelerated reconstruction using Apple's Metal framework via PyTorch
 - Support for TIFF projection loading with metadata
 - Efficient Fourier-domain filtering
-- Optimized backprojection using PyTorch's grid sampling
+- Optimised backprojection using PyTorch's grid sampling
 - Modular design for easy extension and modification
+- Comprehensive test suite with configurable resolution and projection angles
+
+## Example Results
+
+### 3D Phantom Projections
+![Example Projections](test_data/phantom_3d_512_360angles/example_projections.png)
+*Example projections from our 3D phantom dataset.*
+
+### High Resolution Reconstruction
+![Middle Slice Reconstruction](test_data/phantom_3d_512_360angles/reconstruction_results/middle_slice_reconstruction.png)
+*512³ reconstruction of the middle slice using 360 projection angles.*
 
 ## Requirements
 
@@ -43,16 +51,42 @@ Basic usage example:
 from reconstruction import TomographicReconstructor
 import torch
 
-# Initialize reconstructor (automatically uses MPS if available)
+# Initialise reconstructor (automatically uses MPS if available)
 reconstructor = TomographicReconstructor()
 
 # Load your TIFF projections
 sinogram = reconstructor.load_projections(['projection1.tiff', 'projection2.tiff', ...])
+```
+
+### Running Tests
+
+The test suite includes both 2D and 3D reconstruction tests with configurable parameters:
+
+```bash
+# Default settings (256³, 180 angles)
+pixi run test-3d
+pixi run generate-3d-data
+
+# Fast mode for quick testing (128³, 90 angles)
+pixi run test-3d-fast
+pixi run generate-3d-data-fast
+
+# High quality mode (512³, 360 angles)
+pixi run test-3d-hq
+pixi run generate-3d-data-hq
+
+# Custom parameters
+python tests/generate_3d_dataset.py --size=200 --angles=120
+python tests/test_3d_reconstruction.py --size=200 --angles=120
+```
 
 # Create or load your angles (in degrees)
+```
 angles = torch.linspace(0, 180, num_projections)
+```
 
 # Perform reconstruction
+```
 reconstruction = reconstructor.reconstruct(sinogram, angles)
 ```
 
@@ -68,6 +102,14 @@ The reconstruction pipeline consists of three main steps:
 
 All operations are performed on the GPU using PyTorch's MPS backend, providing significant speedup compared to CPU implementations.
 
+## Performance
+
+The implementation leverages PyTorch's MPS backend to utilise Apple's Metal framework for GPU acceleration. Key performance optimisations include:
+
+- Batch processing of projections
+- Efficient memory management
+- Vectorised operations
+- Hardware-accelerated interpolation
 ## License
 
 MIT License

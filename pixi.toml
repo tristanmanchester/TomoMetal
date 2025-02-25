@@ -7,7 +7,22 @@ version = "0.1.0"
 description = "GPU-accelerated tomographic reconstruction using PyTorch MPS for Apple Silicon"
 
 [tasks]
-test = { cmd = "python tests/test_synthetic.py", env = { PYTHONPATH = "." } }
+# 2D reconstruction test
+test-2d = { cmd = "python tests/test_2d_reconstruction.py", env = { PYTHONPATH = "." } }
+
+# 3D reconstruction tests with different parameters
+test-3d = { cmd = "python tests/test_3d_reconstruction.py", env = { PYTHONPATH = "." } }  # Default: 256³, 180 angles
+test-3d-fast = { cmd = "python tests/test_3d_reconstruction.py --size=128 --angles=90", env = { PYTHONPATH = "." } }  # Quick test with lower resolution
+test-3d-hq = { cmd = "python tests/test_3d_reconstruction.py --size=512 --angles=360", env = { PYTHONPATH = "." } }  # High quality test
+
+# Generate 3D test data with custom parameters
+generate-3d-data = { cmd = "python tests/generate_3d_dataset.py", env = { PYTHONPATH = "." } }  # Default: 256³, 180 angles
+generate-3d-data-fast = { cmd = "python tests/generate_3d_dataset.py --size=128 --angles=90", env = { PYTHONPATH = "." } }
+generate-3d-data-hq = { cmd = "python tests/generate_3d_dataset.py --size=512 --angles=360", env = { PYTHONPATH = "." } }
+
+# Run all tests
+test-all = { cmd = "pixi run test-2d && pixi run test-3d" }  # Run with default parameters
+test-all-fast = { cmd = "pixi run test-2d && pixi run test-3d-fast" }  # Run with fast parameters
 
 [dependencies]
 numpy = ">=2.2.3,<3"
@@ -15,6 +30,7 @@ tifffile = ">=2025.2.18,<2026"
 pillow = ">=11.1.0,<12"
 scipy = ">=1.15.2,<2"
 matplotlib = ">=3.10.0,<4"
+tqdm = ">=4.66.0,<5"
 
 [pypi-dependencies]
 torch = "*"

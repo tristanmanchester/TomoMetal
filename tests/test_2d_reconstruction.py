@@ -1,15 +1,42 @@
+"""Test module for 2D tomographic reconstruction using synthetic data.
+
+This module demonstrates and tests the core functionality of the tomographic reconstruction
+pipeline using a 2D Shepp-Logan-like phantom. It includes:
+
+1. Phantom Generation: Creates a 2D phantom with elliptical features
+2. Forward Projection: Simulates X-ray projections at different angles to create sinograms
+3. Back Projection: Reconstructs the original phantom from the sinograms
+
+The test creates visualizations showing:
+- The original phantom
+- The sinogram (projections at different angles)
+- The reconstructed image
+
+The results are saved as 'docs/images/example_reconstruction.png'.
+"""
+
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from tomometal.reconstruction import TomographicReconstructor
 import logging
 import torch.nn.functional as F
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def create_shepp_logan_phantom(size: int = 256) -> torch.Tensor:
-    """Create a simple Shepp-Logan-like phantom."""
+    """Create a simple 2D Shepp-Logan-like phantom with elliptical features.
+    
+    Args:
+        size: Size of the square image (size x size pixels)
+        
+    Returns:
+        torch.Tensor: 2D tensor of shape [size, size] containing the phantom image
+        with values between 0 and 1, where 0 represents no attenuation and 1
+        represents maximum attenuation.
+    """
     phantom = torch.zeros((size, size))
     center = size // 2
     
@@ -33,6 +60,20 @@ def create_shepp_logan_phantom(size: int = 256) -> torch.Tensor:
     return phantom
 
 def create_projections(phantom: torch.Tensor, angles: torch.Tensor, device: torch.device) -> torch.Tensor:
+    """Create parallel beam projections of a 2D phantom at specified angles.
+    
+    This function simulates X-ray projections by rotating the phantom and summing
+    along the vertical axis. It uses grid sampling for accurate rotation.
+    
+    Args:
+        phantom: 2D tensor [height, width] containing the phantom image
+        angles: 1D tensor containing projection angles in radians
+        device: Torch device to perform computations on
+        
+    Returns:
+        torch.Tensor: Projection data of shape [num_angles, width] containing
+        the simulated X-ray projections at each angle
+    """
     phantom = phantom.to(device)
     size = phantom.shape[0]
     projections = torch.zeros((len(angles), size), device=device)  # [num_angles, width]
@@ -85,28 +126,43 @@ def main():
     projections_cpu = projections.cpu().numpy()
     reconstruction_cpu = reconstruction.cpu().numpy()
     
-    # Main visualization with higher DPI and better aspect ratio
-    fig, axes = plt.subplots(1, 3, figsize=(20, 6), dpi=150)
-    plt.subplots_adjust(wspace=0.3)  # Add more space between subplots
+    # Set style for clean, modern look
+    plt.style.use('dark_background')
+    
+    # Create figure with specific dimensions
+    fig = plt.figure(figsize=(20, 6), dpi=150, facecolor='black')
+    gs = plt.GridSpec(1, 3, figure=fig, wspace=0.15)
     
     # Original phantom
-    axes[0].imshow(phantom_cpu, cmap='gray')
-    axes[0].set_title('Original Phantom', fontsize=12, pad=10)
-    axes[0].axis('off')
+    ax1 = fig.add_subplot(gs[0])
+    im1 = ax1.imshow(phantom_cpu, cmap='gray')
+    ax1.set_title('Original Phantom', fontsize=14, pad=15, color='white')
+    ax1.axis('off')
     
-    # Sinogram
-    axes[1].imshow(projections_cpu, cmap='gray', aspect='auto', extent=[0, size, 360, 0])
-    axes[1].set_title('Sinogram', fontsize=12, pad=10)
-    axes[1].set_ylabel('Angle (degrees)', fontsize=10)
-    axes[1].set_xlabel('Detector Position', fontsize=10)
+    # Sinogram with custom extent and aspect
+    ax2 = fig.add_subplot(gs[1])
+    im2 = ax2.imshow(projections_cpu, cmap='gray', aspect='auto', 
+                    extent=[0, size, 180, 0])
+    ax2.set_title('Sinogram', fontsize=14, pad=15, color='white')
+    # Only show a few angle ticks
+    ax2.set_yticks([0, 45, 90, 135, 180])
+    ax2.set_ylabel('Angle (degrees)', fontsize=12, color='white', labelpad=10)
+    ax2.set_xlabel('Detector Position', fontsize=12, color='white', labelpad=10)
+    # Style the ticks
+    ax2.tick_params(colors='white', which='both')
     
     # Reconstruction
-    axes[2].imshow(reconstruction_cpu, cmap='gray')
-    axes[2].set_title('Reconstruction', fontsize=12, pad=10)
-    axes[2].axis('off')
+    ax3 = fig.add_subplot(gs[2])
+    im3 = ax3.imshow(reconstruction_cpu, cmap='gray')
+    ax3.set_title('Reconstruction', fontsize=14, pad=15, color='white')
+    ax3.axis('off')
     
-    plt.tight_layout()
-    plt.savefig('docs/images/example_reconstruction.png')
+    # Adjust layout
+    plt.tight_layout(pad=2.0)
+    # Create output directory
+    output_dir = Path('test_data/phantom_2d_reconstruction')
+    output_dir.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_dir / 'reconstruction_results.png')
     plt.close()
     
     logger.info("Test complete! Check reconstruction_test.png for results.")

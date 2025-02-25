@@ -19,6 +19,13 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
+
+# Test data
+test_data/*
+
+# Allow example images
+!test_data/phantom_3d_512_360angles/reconstruction_results/middle_slice_reconstruction.png
+!test_data/phantom_3d_512_360angles/example_projections.png
 *.egg
 
 # Virtual environments
@@ -35,7 +42,6 @@ ENV/
 *.swo
 
 # Project specific
-*.png
 *.tif
 *.tiff
 
