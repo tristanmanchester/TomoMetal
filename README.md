@@ -40,8 +40,13 @@ Then:
    ```
 3. Run the example:
    ```bash
-   pixi run python examples/example.py
+   pixi run python examples/example.py --input_dir path/to/your/tiffs --num_angles 180 --output_file custom_reconstruction.png --use_hamming
    ```
+   The `examples/example.py` script accepts the following command-line arguments:
+    *   `--input_dir`: (Required) Path to the directory containing your TIFF projection images (e.g., `path/to/your/tiffs`).
+    *   `--output_file`: (Optional) Path and filename for the saved reconstruction image. Default: `reconstruction.png`.
+    *   `--num_angles`: (Optional) Number of projection angles to generate using `torch.linspace(0, 180, num_angles)`. Default: 180.
+    *   `--use_hamming`: (Optional) If specified, enables the Hamming window during ramp filtering. Defaults to False (no Hamming window) if not present.
 
 ## Usage
 
@@ -90,7 +95,7 @@ angles = torch.linspace(0, 180, num_projections)
 reconstruction = reconstructor.reconstruct(sinogram, angles)
 ```
 
-See `src/example.py` for a complete usage example.
+See `examples/example.py` for a complete usage example (the script discussed in step 3 of Installation).
 
 ## Implementation Details
 
